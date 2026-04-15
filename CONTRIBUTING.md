@@ -43,6 +43,11 @@ Every PR must include:
 - Test evidence (commands and pass/fail status)
 - Risks and follow-ups
 
+Also required:
+
+- Follow `AGENTS.md` and `docs/process/guardrails.md`.
+- Respect coverage policy from `docs/process/quality-gates.md` (target >=90%).
+
 ## Suggested Git Commands
 
 ```bash
