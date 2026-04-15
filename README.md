@@ -21,3 +21,4 @@ MVP planning repository for Share Dreams.
 - `CONTRIBUTING.md`
 - `AGENTS.md`
 - `docs/process/README.md`
+- `docs/process/prompts/README.md`
