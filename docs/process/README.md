@@ -8,6 +8,7 @@ This directory defines the operational framework used before and during developm
 - `guardrails.md`: anti-hallucination and decision safety rules.
 - `quality-gates.md`: mandatory quality checks and coverage policy.
 - `phase-execution-matrix.md`: phase/task mapping to agents, skills, and KB packs.
+- `prompts/README.md`: ordered prompts to execute each phase in separate chats.
 - `templates/task-brief.md`: required input format for delegated task execution.
 - `templates/handoff-note.md`: standard phase completion handoff format.
 
