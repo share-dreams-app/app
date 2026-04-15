@@ -34,6 +34,36 @@
 
 Use one chat per phase to control context size. Each phase must end with green tests for that phase scope and a short handoff note committed to the repo (`docs/superpowers/handoffs/`).
 
+## Branch and PR Premise (Mandatory)
+
+- Use one dedicated branch per phase.
+- Do not push implementation directly to `main`.
+- Open one PR per phase into `main`.
+- Merge phase PR only after phase exit checks pass and review is approved.
+- Use `Squash and merge` for phase PRs.
+
+### Standard Phase Branches
+
+- Phase 1: `phase/1-foundation-persistence`
+- Phase 2: `phase/2-core-product-loop`
+- Phase 3: `phase/3-personalization-rewards`
+- Phase 4: `phase/4-ux-analytics-release-gate`
+
+### Phase Start Commands
+
+```bash
+git checkout main
+git pull
+git checkout -b phase/<N>-<short-scope>
+```
+
+### Phase End Commands
+
+```bash
+git push -u origin phase/<N>-<short-scope>
+# open PR to main using .github/pull_request_template.md
+```
+
 ### Phase 1: Foundation and Persistence
 
 - Scope: Tasks 1, 2, 3.
