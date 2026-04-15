@@ -21,6 +21,7 @@ List exact commands and results.
 - [ ] Integration tests
 - [ ] E2E tests (if phase requires)
 - [ ] Build/deploy checks (if phase requires)
+- [ ] Coverage target validated (>=90% according to `docs/process/quality-gates.md`)
 
 ## Handoff Note
 

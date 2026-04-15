@@ -34,6 +34,16 @@
 
 Use one chat per phase to control context size. Each phase must end with green tests for that phase scope and a short handoff note committed to the repo (`docs/superpowers/handoffs/`).
 
+## Execution Governance Pack (Mandatory Before Any Phase)
+
+Read and apply these files before starting phase execution:
+
+- `AGENTS.md`
+- `docs/process/guardrails.md`
+- `docs/process/quality-gates.md`
+- `docs/process/phase-execution-matrix.md`
+- `docs/process/kb/product/source-of-truth.md`
+
 ## Branch and PR Premise (Mandatory)
 
 - Use one dedicated branch per phase.
