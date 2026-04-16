@@ -1,23 +1,34 @@
 import { NextResponse } from "next/server";
 import { createSupportSuggestion } from "@/server/services/collaboration-service";
 import { requireUser } from "@/server/auth/require-user";
+import { trackEvent } from "@/server/services/analytics-service";
 
 export async function POST(
   request: Request,
-  context: { params: { dreamId: string } }
+  context: { params: Promise<{ dreamId: string }> }
 ) {
   try {
-    await requireUser(request);
+    const { dreamId } = await context.params;
+    const user = await requireUser(request);
     const body = await request.json();
     const suggestion = await createSupportSuggestion({
       mode: body.mode,
       content: body.content
     });
+    await trackEvent({
+      userId: user.id,
+      type: "support_interaction",
+      payload: {
+        source: "api",
+        dreamId,
+        interactionType: suggestion.type
+      }
+    });
 
     return NextResponse.json(
       {
         ...suggestion,
-        dreamId: context.params.dreamId
+        dreamId
       },
       { status: 201 }
     );

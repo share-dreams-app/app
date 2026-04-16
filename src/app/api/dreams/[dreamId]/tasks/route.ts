@@ -1,20 +1,27 @@
 import { NextResponse } from "next/server";
 import { createTask } from "@/server/services/dream-service";
 import { requireUser } from "@/server/auth/require-user";
+import { trackEvent } from "@/server/services/analytics-service";
 import { getUserTier } from "@/server/services/subscription-service";
 
 export async function POST(
   request: Request,
-  context: { params: { dreamId: string } }
+  context: { params: Promise<{ dreamId: string }> }
 ) {
   try {
+    const { dreamId } = await context.params;
     const user = await requireUser(request);
     const tier = await getUserTier(user.id);
     const body = await request.json();
     const task = await createTask({
-      dreamId: context.params.dreamId,
+      dreamId,
       tier,
       title: body.title
+    });
+    await trackEvent({
+      userId: user.id,
+      type: "task_created",
+      payload: { source: "api", dreamId, taskId: task.id }
     });
 
     return NextResponse.json(task, { status: 201 });

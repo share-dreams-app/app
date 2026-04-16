@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createDream } from "@/server/services/dream-service";
 import { requireUser } from "@/server/auth/require-user";
+import { trackEvent } from "@/server/services/analytics-service";
 import { getUserTier } from "@/server/services/subscription-service";
 
 export async function POST(request: Request) {
@@ -12,6 +13,11 @@ export async function POST(request: Request) {
       userId: user.id,
       tier,
       title: body.title
+    });
+    await trackEvent({
+      userId: user.id,
+      type: "dream_created",
+      payload: { source: "api", dreamId: dream.id }
     });
 
     return NextResponse.json(dream, { status: 201 });

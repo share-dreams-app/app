@@ -4,13 +4,14 @@ import { requireUser } from "@/server/auth/require-user";
 
 export async function POST(
   request: Request,
-  context: { params: { dreamId: string } }
+  context: { params: Promise<{ dreamId: string }> }
 ) {
   try {
+    const { dreamId } = await context.params;
     await requireUser(request);
     const body = await request.json();
     const stage = await createStage({
-      dreamId: context.params.dreamId,
+      dreamId,
       title: String(body.title ?? ""),
       order: typeof body.order === "number" ? body.order : undefined
     });

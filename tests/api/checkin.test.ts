@@ -28,7 +28,7 @@ describe("POST /api/dreams/:dreamId/checkins", () => {
         method: "POST",
         body: JSON.stringify({ progress: 50, nextSteps: "Prepare portfolio" })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(401);
@@ -42,7 +42,7 @@ describe("POST /api/dreams/:dreamId/checkins", () => {
         headers: authHeaders,
         body: JSON.stringify({ progress: 50, nextSteps: "Prepare portfolio" })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(201);
@@ -60,7 +60,7 @@ describe("POST /api/dreams/:dreamId/checkins", () => {
         headers: authHeaders,
         body: JSON.stringify({ progress: 0, nextSteps: "   " })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -74,7 +74,7 @@ describe("POST /api/dreams/:dreamId/checkins", () => {
         headers: authHeaders,
         body: JSON.stringify({ progress: "abc", nextSteps: "Review board" })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -88,7 +88,7 @@ describe("POST /api/dreams/:dreamId/checkins", () => {
         headers: authHeaders,
         body: "{bad json"
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(422);

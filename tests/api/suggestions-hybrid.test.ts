@@ -231,7 +231,7 @@ describe("POST /api/dreams/:dreamId/suggestions/tasks", () => {
           }
         })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(401);
@@ -251,7 +251,7 @@ describe("POST /api/dreams/:dreamId/suggestions/tasks", () => {
           }
         })
       }),
-      { params: { dreamId: "   " } }
+      { params: Promise.resolve({ dreamId: "   " }) }
     );
 
     expect(response.status).toBe(422);
@@ -267,7 +267,7 @@ describe("POST /api/dreams/:dreamId/suggestions/tasks", () => {
         headers: authHeaders,
         body: "null"
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -283,7 +283,7 @@ describe("POST /api/dreams/:dreamId/suggestions/tasks", () => {
         headers: authHeaders,
         body: "{bad json"
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -305,7 +305,7 @@ describe("POST /api/dreams/:dreamId/suggestions/tasks", () => {
           }
         })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(200);
@@ -331,7 +331,7 @@ describe("POST /api/dreams/:dreamId/suggestions/tasks", () => {
           }
         })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(200);
@@ -353,7 +353,7 @@ describe("POST /api/dreams/:dreamId/suggestions/tasks", () => {
           }
         })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -379,7 +379,7 @@ describe("POST /api/dreams/:dreamId/suggestions/tasks", () => {
           }
         })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(500);

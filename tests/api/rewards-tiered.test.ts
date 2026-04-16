@@ -162,7 +162,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           title: "Spa night"
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(401);
@@ -179,7 +179,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           title: "  Spa night  "
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(201);
@@ -201,7 +201,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           dreamTitle: "Mudar de emprego"
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(201);
@@ -234,7 +234,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           }
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(201);
@@ -262,7 +262,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           title: "Spa night"
         })
       }),
-      { params: { dreamId: "   " } }
+      { params: Promise.resolve({ dreamId: "   " }) }
     );
 
     expect(response.status).toBe(422);
@@ -279,7 +279,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           title: "Spa night"
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -293,7 +293,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
         headers: authHeaders,
         body: "{bad json"
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -310,7 +310,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           title: "   "
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -327,7 +327,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           title: 123
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -345,7 +345,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           dreamTitle: "Mudar de emprego"
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -363,7 +363,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           dreamTitle: 123
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -385,7 +385,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           }
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -404,7 +404,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           profile: "invalid"
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(422);
@@ -425,7 +425,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           title: "Spa night"
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(500);
@@ -449,7 +449,7 @@ describe("POST /api/dreams/:dreamId/rewards", () => {
           dreamTitle: "Mudar de emprego"
         })
       }),
-      { params: { dreamId: "dream_1" } }
+      { params: Promise.resolve({ dreamId: "dream_1" }) }
     );
 
     expect(response.status).toBe(500);

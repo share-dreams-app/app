@@ -94,7 +94,7 @@ describe("invite routes", () => {
         method: "POST",
         body: JSON.stringify({ invitedEmail: "friend@test.local" })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(401);
@@ -108,7 +108,7 @@ describe("invite routes", () => {
         headers: authHeaders,
         body: JSON.stringify({ invitedEmail: "friend@test.local" })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(201);
@@ -128,7 +128,7 @@ describe("invite routes", () => {
         headers: authHeaders,
         body: JSON.stringify({ invitedEmail: "second@test.local" })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(409);
@@ -146,7 +146,7 @@ describe("invite routes", () => {
       new Request(`http://localhost/api/invites/${invite.token}/accept`, {
         method: "POST"
       }),
-      { params: { token: invite.token } }
+      { params: Promise.resolve({ token: invite.token }) }
     );
 
     expect(response.status).toBe(410);
@@ -160,7 +160,7 @@ describe("invite routes", () => {
         headers: authHeaders,
         body: JSON.stringify({ invitedEmail: "invalid-email" })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(400);
@@ -174,7 +174,7 @@ describe("invite routes", () => {
         headers: authHeaders,
         body: "{bad json"
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(400);
@@ -186,7 +186,7 @@ describe("invite routes", () => {
       new Request("http://localhost/api/invites/ /accept", {
         method: "POST"
       }),
-      { params: { token: " " } }
+      { params: Promise.resolve({ token: " " }) }
     );
 
     expect(response.status).toBe(400);

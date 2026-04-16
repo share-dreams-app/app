@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import * as collaborationService from "@/server/services/collaboration-service";
 import { createSupportSuggestion } from "@/server/services/collaboration-service";
 import { POST as postCollaboration } from "@/app/api/dreams/[dreamId]/collaboration/route";
 
@@ -50,7 +51,7 @@ describe("POST /api/dreams/:dreamId/collaboration", () => {
         method: "POST",
         body: JSON.stringify({ mode: "SUGGEST_ONLY", content: "Draft CV update" })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(401);
@@ -64,7 +65,7 @@ describe("POST /api/dreams/:dreamId/collaboration", () => {
         headers: authHeaders,
         body: JSON.stringify({ mode: "SUGGEST_ONLY", content: "Draft CV update" })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(201);
@@ -83,7 +84,7 @@ describe("POST /api/dreams/:dreamId/collaboration", () => {
         headers: authHeaders,
         body: JSON.stringify({ mode: "COMMENT_ONLY", content: "Draft CV update" })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(403);
@@ -97,10 +98,30 @@ describe("POST /api/dreams/:dreamId/collaboration", () => {
         headers: authHeaders,
         body: JSON.stringify({ mode: "SUGGEST_ONLY", content: "   " })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({ error: "INVALID_COLLABORATION" });
+  });
+
+  it("returns 500 for unexpected service failures", async () => {
+    const spy = vi
+      .spyOn(collaborationService, "createSupportSuggestion")
+      .mockRejectedValueOnce(new Error("UNEXPECTED_FAILURE"));
+
+    const response = await postCollaboration(
+      new Request("http://localhost/api/dreams/d1/collaboration", {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({ mode: "SUGGEST_ONLY", content: "Draft CV update" })
+      }),
+      { params: Promise.resolve({ dreamId: "d1" }) }
+    );
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({ error: "INTERNAL_SERVER_ERROR" });
+
+    spy.mockRestore();
   });
 });

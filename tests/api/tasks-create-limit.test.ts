@@ -75,7 +75,7 @@ describe("POST /api/dreams/:dreamId/tasks", () => {
           activeTaskCount: 1
         })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(401);
@@ -93,7 +93,7 @@ describe("POST /api/dreams/:dreamId/tasks", () => {
           activeTaskCount: 1
         })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(201);
@@ -111,7 +111,7 @@ describe("POST /api/dreams/:dreamId/tasks", () => {
           title: "Task blocked"
         })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(403);
@@ -130,7 +130,7 @@ describe("POST /api/dreams/:dreamId/tasks", () => {
           title: "Task Tampered"
         })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(403);
@@ -144,7 +144,7 @@ describe("POST /api/dreams/:dreamId/tasks", () => {
         headers: authHeaders,
         body: "{bad json"
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(400);
@@ -163,7 +163,7 @@ describe("POST /api/dreams/:dreamId/stages", () => {
         method: "POST",
         body: JSON.stringify({ title: "Planning", order: 1 })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(401);
@@ -177,7 +177,7 @@ describe("POST /api/dreams/:dreamId/stages", () => {
         headers: authHeaders,
         body: JSON.stringify({ title: "Planning", order: 1 })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(201);
@@ -196,7 +196,7 @@ describe("POST /api/dreams/:dreamId/stages", () => {
         headers: authHeaders,
         body: JSON.stringify({ title: "   " })
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(400);
@@ -210,7 +210,7 @@ describe("POST /api/dreams/:dreamId/stages", () => {
         headers: authHeaders,
         body: "{bad json"
       }),
-      { params: { dreamId: "d1" } }
+      { params: Promise.resolve({ dreamId: "d1" }) }
     );
 
     expect(response.status).toBe(400);

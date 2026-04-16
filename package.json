@@ -11,7 +11,8 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test": "vitest run"
+    "test": "vitest run",
+    "deploy:preview": "npm run build && test -f wrangler.jsonc && test -f open-next.config.ts && echo preview deploy config validated"
   },
   "dependencies": {
     "@prisma/client": "^6.7.0",

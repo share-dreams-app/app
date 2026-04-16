@@ -1,22 +1,33 @@
 import { NextResponse } from "next/server";
 import { submitCheckin } from "@/server/services/checkin-service";
 import { requireUser } from "@/server/auth/require-user";
+import { trackEvent } from "@/server/services/analytics-service";
 
 export async function POST(
   request: Request,
-  context: { params: { dreamId: string } }
+  context: { params: Promise<{ dreamId: string }> }
 ) {
   try {
-    await requireUser(request);
+    const { dreamId } = await context.params;
+    const user = await requireUser(request);
     const body = await request.json();
     const checkin = await submitCheckin({
-      dreamId: context.params.dreamId,
+      dreamId,
       progress: Number(body.progress),
       nextSteps: String(body.nextSteps ?? ""),
       blockers:
         typeof body.blockers === "string" && body.blockers.trim().length > 0
           ? body.blockers
           : undefined
+    });
+    await trackEvent({
+      userId: user.id,
+      type: "checkin_submitted",
+      payload: {
+        source: "api",
+        dreamId,
+        progress: Number(body.progress)
+      }
     });
 
     return NextResponse.json(checkin, { status: 201 });
