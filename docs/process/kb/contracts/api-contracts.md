@@ -17,6 +17,8 @@ This file is the contract index for backend endpoints.
 - `POST /api/invites/{token}/accept`
 - `POST /api/dreams/{dreamId}/collaboration`
 - `POST /api/dreams/{dreamId}/checkins`
+- `POST /api/profile/relationship`
+- `POST /api/dreams/{dreamId}/suggestions/tasks`
 - `POST /api/dreams/{dreamId}/rewards`
 - `GET /api/me`
 
@@ -29,7 +31,7 @@ This file is the contract index for backend endpoints.
 - Error responses:
 - Events emitted:
 
-## Active Contract Entries (Phase 2)
+## Active Contract Entries (Phase 2 and 3)
 
 - Endpoint: `GET /api/me`
 - Auth required: Yes
@@ -86,3 +88,24 @@ This file is the contract index for backend endpoints.
 - Success response: `201` with `{ id: string, dreamId: string, progress: number, nextSteps: string, blockers?: string }`
 - Error responses: `401` with `{ error: "UNAUTHORIZED" }`, `422` with `{ error: "INVALID_CHECKIN" }`
 - Events emitted: `checkin_submitted`
+
+- Endpoint: `POST /api/profile/relationship`
+- Auth required: Yes
+- Request schema: `{ relationType: string, yearsKnown: number, ageRange?: string, objectiveContext?: string }`
+- Success response: `200` with `{ userId: string, relationType: string, yearsKnown: number, ageRange?: string, objectiveContext?: string }`
+- Error responses: `401` with `{ error: "UNAUTHORIZED" }`, `422` with `{ error: "INVALID_RELATIONSHIP_PROFILE" }`
+- Events emitted: none
+
+- Endpoint: `POST /api/dreams/{dreamId}/suggestions/tasks`
+- Auth required: Yes
+- Request schema: `{ dreamTitle: string, relationshipProfile: { relationType: string, yearsKnown: number } }`
+- Success response: `200` with `{ source: "AI" | "TEMPLATE", items: Array<{ title: string, reason?: string }> }`
+- Error responses: `401` with `{ error: "UNAUTHORIZED" }`, `422` with `{ error: "INVALID_SUGGESTION_REQUEST" }`
+- Events emitted: none
+
+- Endpoint: `POST /api/dreams/{dreamId}/rewards`
+- Auth required: Yes
+- Request schema: `{ mode: "MANUAL", title: string } | { mode: "SUGGEST", tier: "FREE" | "PREMIUM", dreamTitle: string, profile?: { relationType: string, yearsKnown: number } }`
+- Success response: `201` with `{ dreamId: string, source: "MANUAL" | "AI" | "TEMPLATE", items?: Array<{ title: string }>, title?: string }`
+- Error responses: `401` with `{ error: "UNAUTHORIZED" }`, `422` with `{ error: "INVALID_REWARD" }`
+- Events emitted: none
