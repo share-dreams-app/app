@@ -3,11 +3,12 @@ import { acceptInvite } from "@/server/services/invite-service";
 
 export async function POST(
   _request: Request,
-  context: { params: { token: string } }
+  context: { params: Promise<{ token: string }> }
 ) {
   try {
+    const { token } = await context.params;
     const result = await acceptInvite({
-      token: context.params.token,
+      token,
       now: new Date()
     });
 

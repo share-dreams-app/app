@@ -4,11 +4,12 @@ import { suggestTaskRecommendations } from "@/server/services/suggestion-orchest
 
 export async function POST(
   request: Request,
-  context: { params: { dreamId: string } }
+  context: { params: Promise<{ dreamId: string }> }
 ) {
   try {
+    const { dreamId } = await context.params;
     await requireUser(request);
-    if (!context.params.dreamId.trim()) {
+    if (!dreamId.trim()) {
       throw new Error("INVALID_SUGGESTION_REQUEST");
     }
     const body = await request.json();

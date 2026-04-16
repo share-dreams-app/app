@@ -1,17 +1,28 @@
 import { NextResponse } from "next/server";
 import { createInvite } from "@/server/services/invite-service";
 import { requireUser } from "@/server/auth/require-user";
+import { trackEvent } from "@/server/services/analytics-service";
 
 export async function POST(
   request: Request,
-  context: { params: { dreamId: string } }
+  context: { params: Promise<{ dreamId: string }> }
 ) {
   try {
-    await requireUser(request);
+    const { dreamId } = await context.params;
+    const user = await requireUser(request);
     const body = await request.json();
     const invite = await createInvite({
-      dreamId: context.params.dreamId,
+      dreamId,
       invitedEmail: String(body.invitedEmail ?? "")
+    });
+    await trackEvent({
+      userId: user.id,
+      type: "supporter_invited",
+      payload: {
+        source: "api",
+        dreamId,
+        invitedEmail: invite.invitedEmail
+      }
     });
 
     return NextResponse.json(invite, { status: 201 });

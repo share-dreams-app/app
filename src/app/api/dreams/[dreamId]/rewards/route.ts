@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { PlanTier } from "@/domain/types";
 import { requireUser } from "@/server/auth/require-user";
+import { trackEvent } from "@/server/services/analytics-service";
 import {
   createManualReward,
   suggestReward
@@ -87,19 +88,30 @@ function parseRewardRequest(body: unknown, dreamId: string) {
 
 export async function POST(
   request: Request,
-  context: { params: { dreamId: string } }
+  context: { params: Promise<{ dreamId: string }> }
 ) {
   try {
-    await requireUser(request);
+    const { dreamId } = await context.params;
+    const user = await requireUser(request);
 
-    const body = parseRewardRequest(await request.json(), context.params.dreamId);
+    const body = parseRewardRequest(await request.json(), dreamId);
 
     if (body.mode === "MANUAL") {
       const reward = createManualReward({ title: body.title });
+      await trackEvent({
+        userId: user.id,
+        type: "reward_defined",
+        payload: {
+          source: "api",
+          rewardSource: reward.source,
+          dreamId,
+          title: reward.title
+        }
+      });
 
       return NextResponse.json(
         {
-          dreamId: context.params.dreamId,
+          dreamId,
           ...reward
         },
         { status: 201 }
@@ -111,10 +123,20 @@ export async function POST(
       dreamTitle: body.dreamTitle,
       profile: body.profile
     });
+    await trackEvent({
+      userId: user.id,
+      type: reward.source === "AI" ? "reward_ai_suggested" : "reward_defined",
+      payload: {
+        source: "api",
+        rewardSource: reward.source,
+        dreamId,
+        dreamTitle: body.dreamTitle
+      }
+    });
 
     return NextResponse.json(
       {
-        dreamId: context.params.dreamId,
+        dreamId,
         ...reward
       },
       { status: 201 }
