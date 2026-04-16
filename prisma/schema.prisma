@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+enum PlanTier {
+  FREE
+  PREMIUM
+}
+
+enum DreamStatus {
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum TaskStatus {
+  ACTIVE
+  COMPLETED
+}
+
+enum PermissionMode {
+  COMMENT_ONLY
+  SUGGEST_ONLY
+  FULL_EDIT
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum RewardScope {
+  DREAM
+  TASK
+}
+
+enum CollaborationType {
+  COMMENT
+  SUGGESTION
+  CELEBRATION
+}
+
+enum EventType {
+  dream_created
+  task_created
+  checkin_submitted
+  supporter_invited
+  support_interaction
+  task_completed
+  dream_completed
+  reward_defined
+  reward_completed
+  reward_ai_suggested
+  reward_ai_accepted
+  weekly_active_user
+}
+
+model User {
+  id                   String                @id @default(cuid())
+  email                String                @unique
+  planTier             PlanTier              @default(FREE)
+  dreamsOwned          Dream[]               @relation("DreamOwner")
+  dreamsSupported      Dream[]               @relation("DreamSupporter")
+  collaborationEntries CollaborationEntry[]
+  notifications        Notification[]
+  usageEvents          UsageEvent[]
+  profilesOwned        RelationshipProfile[] @relation("ProfileOwner")
+  profilesAsSupporter  RelationshipProfile[] @relation("ProfileSupporter")
+  createdAt            DateTime              @default(now())
+}
+
+model Dream {
+  id            String         @id @default(cuid())
+  ownerId       String
+  supporterId   String?
+  supporterMode PermissionMode @default(COMMENT_ONLY)
+  title         String
+  context       String?
+  deadline      DateTime?
+  status        DreamStatus    @default(ACTIVE)
+  owner         User           @relation("DreamOwner", fields: [ownerId], references: [id])
+  supporter     User?          @relation("DreamSupporter", fields: [supporterId], references: [id])
+  stages        Stage[]
+  tasks         TaskItem[]
+  rewards       Reward[]
+  checkIns      CheckIn[]
+  invites       DreamInvite[]
+  collaboration CollaborationEntry[]
+  createdAt     DateTime       @default(now())
+}
+
+model Stage {
+  id      String   @id @default(cuid())
+  dreamId String
+  title   String
+  order   Int
+  dream   Dream    @relation(fields: [dreamId], references: [id])
+  tasks   TaskItem[]
+}
+
+model TaskItem {
+  id       String     @id @default(cuid())
+  dreamId  String
+  stageId  String?
+  title    String
+  dueDate  DateTime?
+  status   TaskStatus @default(ACTIVE)
+  dream    Dream      @relation(fields: [dreamId], references: [id])
+  stage    Stage?     @relation(fields: [stageId], references: [id])
+  rewards  Reward[]
+}
+
+model DreamInvite {
+  id           String       @id @default(cuid())
+  dreamId      String
+  token        String       @unique
+  invitedEmail String
+  status       InviteStatus @default(PENDING)
+  expiresAt    DateTime
+  dream        Dream        @relation(fields: [dreamId], references: [id])
+}
+
+model CheckIn {
+  id        String   @id @default(cuid())
+  dreamId   String
+  progress  Int
+  nextSteps String
+  blockers  String?
+  createdAt DateTime @default(now())
+  dream     Dream    @relation(fields: [dreamId], references: [id])
+}
+
+model Reward {
+  id          String      @id @default(cuid())
+  dreamId     String
+  taskId      String?
+  scope       RewardScope
+  title       String
+  source      String
+  completedAt DateTime?
+  dream       Dream       @relation(fields: [dreamId], references: [id])
+  task        TaskItem?   @relation(fields: [taskId], references: [id])
+}
+
+model RelationshipProfile {
+  id                String   @id @default(cuid())
+  ownerId           String
+  supporterId       String?
+  relationType      String
+  yearsKnown        Int?
+  ownerAgeRange     String?
+  supporterAgeRange String?
+  objectiveContext  String?
+  owner             User     @relation("ProfileOwner", fields: [ownerId], references: [id])
+  supporter         User?    @relation("ProfileSupporter", fields: [supporterId], references: [id])
+  updatedAt         DateTime @updatedAt
+
+  @@unique([ownerId, supporterId])
+}
+
+model CollaborationEntry {
+  id         String            @id @default(cuid())
+  dreamId    String
+  authorId   String
+  type       CollaborationType
+  content    String
+  approvedAt DateTime?
+  createdAt  DateTime          @default(now())
+  dream      Dream             @relation(fields: [dreamId], references: [id])
+  author     User              @relation(fields: [authorId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model UsageEvent {
+  id        String    @id @default(cuid())
+  userId    String
+  type      EventType
+  payload   Json?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+}
