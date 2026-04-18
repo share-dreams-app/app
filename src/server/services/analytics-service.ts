@@ -13,6 +13,7 @@ export type AnalyticsEvent = {
 };
 
 const DEFAULT_READ_LIMIT = 200;
+const DB_OPERATION_TIMEOUT_MS = 800;
 const inMemoryEvents: AnalyticsEvent[] = [];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -63,6 +64,24 @@ function buildSyntheticEmail(userId: string): string {
   return `event_${encoded}@analytics.local`;
 }
 
+async function withDbTimeout<T>(operation: Promise<T>): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error("ANALYTICS_DB_TIMEOUT"));
+    }, DB_OPERATION_TIMEOUT_MS);
+
+    operation
+      .then((result) => {
+        clearTimeout(timer);
+        resolve(result);
+      })
+      .catch((error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      });
+  });
+}
+
 export function isMvpAnalyticsEventType(value: unknown): value is MvpAnalyticsEventType {
   return (
     typeof value === "string" &&
@@ -88,30 +107,36 @@ export const analyticsServiceDeps = {
   async persistEvent(event: AnalyticsEvent) {
     const occurredAt = parseOccurredAt(event.occurredAt) ?? new Date();
 
-    await db.user.createMany({
-      data: [
-        {
-          id: event.userId,
-          email: buildSyntheticEmail(event.userId)
-        }
-      ],
-      skipDuplicates: true
-    });
+    await withDbTimeout(
+      db.user.createMany({
+        data: [
+          {
+            id: event.userId,
+            email: buildSyntheticEmail(event.userId)
+          }
+        ],
+        skipDuplicates: true
+      })
+    );
 
-    await db.usageEvent.create({
-      data: {
-        userId: event.userId,
-        type: event.type,
-        payload: event.payload ?? {},
-        createdAt: occurredAt
-      }
-    });
+    await withDbTimeout(
+      db.usageEvent.create({
+        data: {
+          userId: event.userId,
+          type: event.type,
+          payload: event.payload ?? {},
+          createdAt: occurredAt
+        }
+      })
+    );
   },
   async readRecentEvents(limit: number): Promise<AnalyticsEvent[]> {
-    const rows = await db.usageEvent.findMany({
-      orderBy: { createdAt: "desc" },
-      take: normalizeLimit(limit)
-    });
+    const rows = await withDbTimeout(
+      db.usageEvent.findMany({
+        orderBy: { createdAt: "desc" },
+        take: normalizeLimit(limit)
+      })
+    );
 
     return rows.map((row) => ({
       userId: row.userId,

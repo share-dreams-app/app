@@ -8,20 +8,20 @@ test("user creates dream, task, check-in, and reward through MVP flow", async ({
   expect(dashboard.status()).toBe(200);
   const dashboardHtml = await dashboard.text();
   expect(dashboardHtml).toContain("Share Dreams MVP");
-  expect(dashboardHtml).toContain("Seu painel de sonhos");
-  expect(dashboardHtml).toContain("Novo sonho");
-  expect(dashboardHtml).toContain("Abrir sonho");
-  expect(dashboardHtml).not.toContain("Você atingiu o limite do plano Free");
+  expect(dashboardHtml).toContain("Your Dreams Dashboard");
+  expect(dashboardHtml).toContain("New Dream");
+  expect(dashboardHtml).toContain("Open Dream");
+  expect(dashboardHtml).not.toContain("You have reached the Free plan limit");
 
   const dreamPage = await request.get("/dreams/dream_e2e?title=Mudar%20de%20emprego%20em%206%20meses");
   expect(dreamPage.status()).toBe(200);
   const dreamHtml = await dreamPage.text();
-  expect(dreamHtml).toContain("Plano de execução");
-  expect(dreamHtml).toContain("Nova tarefa");
-  expect(dreamHtml).toContain("Check-in semanal");
-  expect(dreamHtml).toContain("Registrar check-in");
-  expect(dreamHtml).toContain("Definir recompensa");
-  expect(dreamHtml).toContain("Marco de motivação");
+  expect(dreamHtml).toContain("Execution Plan");
+  expect(dreamHtml).toContain("New Task");
+  expect(dreamHtml).toContain("Weekly Check-in");
+  expect(dreamHtml).toContain("Save Check-in");
+  expect(dreamHtml).toContain("Set Reward");
+  expect(dreamHtml).toContain("Motivation Milestone");
 
   const eventPayloads = [
     {
@@ -54,9 +54,9 @@ test("user creates dream, task, check-in, and reward through MVP flow", async ({
   );
   expect(insightsPage.status()).toBe(200);
   const insightsHtml = await insightsPage.text();
-  expect(insightsHtml).toContain("Resumo de engajamento");
-  expect(insightsHtml).toContain("Retenção semanal");
-  expect(insightsHtml).toContain("Usuários ativos semanais");
+  expect(insightsHtml).toContain("Engagement Overview");
+  expect(insightsHtml).toContain("Weekly Retention");
+  expect(insightsHtml).toContain("Weekly Active Users");
   expect(insightsHtml).toContain("weekly_active_user");
   expect(insightsHtml).toContain("dream_created");
   expect(insightsHtml).toContain("task_created");
