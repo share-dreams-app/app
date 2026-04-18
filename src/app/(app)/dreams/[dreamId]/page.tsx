@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useLocale } from "@/components/locale-provider";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { SectionHeader } from "@/components/ui/section-header";
 import { trackClientEvent } from "@/lib/analytics-client";
 
 type TaskItem = {
@@ -14,34 +19,41 @@ type CheckIn = {
   nextSteps: string;
 };
 
-function readDreamTitle() {
+function readDreamTitle(fallbackTitle: string) {
   if (typeof window === "undefined") {
-    return "Sonho compartilhado";
+    return fallbackTitle;
   }
 
   const params = new URLSearchParams(window.location.search);
-  return params.get("title") ?? "Sonho compartilhado";
+  return params.get("title") ?? fallbackTitle;
 }
 
 const ANALYTICS_USER_ID = "owner_1";
 
 export default function DreamDetailPage() {
-  const [dreamTitle, setDreamTitle] = useState("Sonho compartilhado");
+  const { copy } = useLocale();
+  const [dreamTitle, setDreamTitle] = useState(copy.dream.defaultTitle);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [taskTitle, setTaskTitle] = useState("");
-  const [tasks, setTasks] = useState<TaskItem[]>([
-    { id: "task_seed", title: "Definir primeiro marco semanal" }
-  ]);
+  const [tasks, setTasks] = useState<TaskItem[]>([{ id: "task_seed", title: copy.dream.seedTask }]);
   const [progress, setProgress] = useState("");
   const [nextSteps, setNextSteps] = useState("");
   const [checkIn, setCheckIn] = useState<CheckIn | null>(null);
   const [showRewardForm, setShowRewardForm] = useState(false);
   const [rewardTitle, setRewardTitle] = useState("");
-  const [reward, setReward] = useState("Jantar simples para celebrar o marco");
+  const [reward, setReward] = useState(copy.dream.defaultReward);
 
   useEffect(() => {
-    setDreamTitle(readDreamTitle());
-  }, []);
+    setDreamTitle(readDreamTitle(copy.dream.defaultTitle));
+  }, [copy.dream.defaultTitle]);
+
+  useEffect(() => {
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === "task_seed" ? { ...task, title: copy.dream.seedTask } : task
+      )
+    );
+  }, [copy.dream.seedTask]);
 
   function createTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -104,250 +116,134 @@ export default function DreamDetailPage() {
   }
 
   return (
-    <main style={styles.shell}>
-      <nav style={styles.nav} aria-label="Navegação do sonho">
-        <Link href="/dashboard" style={styles.navLink}>Voltar ao painel</Link>
-        <Link href="/insights?plan=premium" style={styles.navLink}>Ver insights</Link>
-      </nav>
-
-      <section style={styles.hero}>
-        <p style={styles.eyebrow}>Plano de execução</p>
-        <h1 style={styles.title}>{dreamTitle}</h1>
-        <p style={styles.subtitle}>
-          Uma visão simples para transformar o sonho em tarefas, check-ins e recompensas verificáveis.
-        </p>
-      </section>
-
-      <section style={styles.grid}>
-        <article style={styles.panel}>
-          <div style={styles.panelHeader}>
-            <div>
-              <p style={styles.eyebrow}>Etapas e tarefas</p>
-              <h2 style={styles.panelTitle}>Próximas ações</h2>
-            </div>
-            <button type="button" onClick={() => setShowTaskForm((value) => !value)} style={styles.smallButton}>
-              Nova tarefa
-            </button>
+    <main className="sd-page-shell">
+      <div className="sd-content-width">
+        <header className="sd-top-bar" aria-label="Dream navigation">
+          <Link href="/" className="sd-brand">
+            {copy.common.appName}
+          </Link>
+          <nav className="sd-nav-links">
+            <Link href="/dashboard" className="sd-nav-link">
+              {copy.dream.backDashboard}
+            </Link>
+            <Link href="/insights?plan=premium" className="sd-nav-link">
+              {copy.dream.viewInsights}
+            </Link>
+          </nav>
+          <div className="sd-top-actions">
+            <LanguageToggle />
           </div>
+        </header>
 
-          {showTaskForm ? (
-            <form onSubmit={createTask} style={styles.formCard}>
-              <label htmlFor="task-title" style={styles.label}>Título da tarefa</label>
-              <input
-                id="task-title"
-                value={taskTitle}
-                onChange={(event) => setTaskTitle(event.target.value)}
-                style={styles.input}
-              />
-              <button type="submit" style={styles.primaryButton}>Salvar tarefa</button>
-            </form>
-          ) : null}
+        <section className="sd-dream-hero">
+          <SectionHeader
+            eyebrow={copy.dream.eyebrow}
+            title={dreamTitle}
+            description={copy.dream.subtitle}
+          />
+        </section>
 
-          <ul style={styles.list}>
-            {tasks.map((task) => (
-              <li key={task.id} style={styles.listItem}>{task.title}</li>
-            ))}
-          </ul>
-        </article>
-
-        <article style={styles.panel}>
-          <p style={styles.eyebrow}>Check-in semanal</p>
-          <h2 style={styles.panelTitle}>Registrar avanço</h2>
-          <form onSubmit={submitCheckIn} style={styles.stack}>
-            <label htmlFor="progress" style={styles.label}>Progresso (%)</label>
-            <input
-              id="progress"
-              inputMode="numeric"
-              value={progress}
-              onChange={(event) => setProgress(event.target.value)}
-              style={styles.input}
-            />
-            <label htmlFor="next-steps" style={styles.label}>Próximos passos</label>
-            <textarea
-              id="next-steps"
-              value={nextSteps}
-              onChange={(event) => setNextSteps(event.target.value)}
-              style={styles.textarea}
-            />
-            <button type="submit" style={styles.primaryButton}>Registrar check-in</button>
-          </form>
-
-          {checkIn ? (
-            <div style={styles.successCard}>
-              <strong>Check-in registrado</strong>
-              <span>{checkIn.progress}%</span>
-              <p>{checkIn.nextSteps}</p>
+        <section className="sd-panel-grid">
+          <Card>
+            <div className="sd-panel-header">
+              <div>
+                <p className="sd-eyebrow">{copy.dream.tasksEyebrow}</p>
+                <h2 className="sd-panel-title">{copy.dream.tasksTitle}</h2>
+              </div>
+              <Button variant="secondary" onClick={() => setShowTaskForm((value) => !value)}>
+                {copy.dream.newTask}
+              </Button>
             </div>
-          ) : null}
-        </article>
 
-        <article style={styles.panel}>
-          <div style={styles.panelHeader}>
-            <div>
-              <p style={styles.eyebrow}>Recompensa</p>
-              <h2 style={styles.panelTitle}>Marco de motivação</h2>
-            </div>
-            <button type="button" onClick={() => setShowRewardForm((value) => !value)} style={styles.smallButton}>
-              Definir recompensa
-            </button>
-          </div>
+            {showTaskForm ? (
+              <form onSubmit={createTask} className="sd-form-stack">
+                <label htmlFor="task-title" className="sd-label">
+                  {copy.dream.taskLabel}
+                </label>
+                <input
+                  id="task-title"
+                  value={taskTitle}
+                  onChange={(event) => setTaskTitle(event.target.value)}
+                  className="sd-input"
+                />
+                <Button type="submit">{copy.dream.saveTask}</Button>
+              </form>
+            ) : null}
 
-          {showRewardForm ? (
-            <form onSubmit={saveReward} style={styles.formCard}>
-              <label htmlFor="manual-reward" style={styles.label}>Recompensa manual</label>
+            <ul className="sd-list">
+              {tasks.map((task) => (
+                <li key={task.id} className="sd-list-item">
+                  {task.title}
+                </li>
+              ))}
+            </ul>
+          </Card>
+
+          <Card>
+            <p className="sd-eyebrow">{copy.dream.checkinEyebrow}</p>
+            <h2 className="sd-panel-title">{copy.dream.checkinTitle}</h2>
+            <form onSubmit={submitCheckIn} className="sd-form-stack">
+              <label htmlFor="progress" className="sd-label">
+                {copy.dream.progressLabel}
+              </label>
               <input
-                id="manual-reward"
-                value={rewardTitle}
-                onChange={(event) => setRewardTitle(event.target.value)}
-                style={styles.input}
+                id="progress"
+                inputMode="numeric"
+                value={progress}
+                onChange={(event) => setProgress(event.target.value)}
+                className="sd-input"
               />
-              <button type="submit" style={styles.primaryButton}>Salvar recompensa</button>
+              <label htmlFor="next-steps" className="sd-label">
+                {copy.dream.nextStepsLabel}
+              </label>
+              <textarea
+                id="next-steps"
+                value={nextSteps}
+                onChange={(event) => setNextSteps(event.target.value)}
+                className="sd-textarea"
+              />
+              <Button type="submit">{copy.dream.saveCheckin}</Button>
             </form>
-          ) : null}
 
-          <p style={styles.reward}>{reward}</p>
-        </article>
-      </section>
+            {checkIn ? (
+              <div className="sd-success-card">
+                <strong>{copy.dream.checkinSaved}</strong>
+                <span>{checkIn.progress}%</span>
+                <p>{checkIn.nextSteps}</p>
+              </div>
+            ) : null}
+          </Card>
+
+          <Card>
+            <div className="sd-panel-header">
+              <div>
+                <p className="sd-eyebrow">{copy.dream.rewardEyebrow}</p>
+                <h2 className="sd-panel-title">{copy.dream.rewardTitle}</h2>
+              </div>
+              <Button variant="secondary" onClick={() => setShowRewardForm((value) => !value)}>
+                {copy.dream.setReward}
+              </Button>
+            </div>
+
+            {showRewardForm ? (
+              <form onSubmit={saveReward} className="sd-form-stack">
+                <label htmlFor="manual-reward" className="sd-label">
+                  {copy.dream.rewardLabel}
+                </label>
+                <input
+                  id="manual-reward"
+                  value={rewardTitle}
+                  onChange={(event) => setRewardTitle(event.target.value)}
+                  className="sd-input"
+                />
+                <Button type="submit">{copy.dream.saveReward}</Button>
+              </form>
+            ) : null}
+
+            <p className="sd-reward-card">{reward}</p>
+          </Card>
+        </section>
+      </div>
     </main>
   );
 }
-
-const styles = {
-  shell: {
-    minHeight: "100vh",
-    padding: "28px clamp(18px, 5vw, 64px)",
-    background: "linear-gradient(150deg, #f0fdfa 0%, #fff7ed 52%, #f8fafc 100%)",
-    color: "#0f172a",
-    fontFamily: "Georgia, 'Times New Roman', serif"
-  },
-  nav: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: "12px",
-    flexWrap: "wrap" as const,
-    marginBottom: "26px"
-  },
-  navLink: {
-    color: "#0f766e",
-    fontWeight: 700
-  },
-  hero: {
-    maxWidth: "820px",
-    marginBottom: "28px"
-  },
-  eyebrow: {
-    margin: 0,
-    color: "#0f766e",
-    fontSize: "0.78rem",
-    fontWeight: 700,
-    letterSpacing: "0.14em",
-    textTransform: "uppercase" as const
-  },
-  title: {
-    margin: "8px 0",
-    fontSize: "clamp(2.2rem, 6vw, 4.6rem)",
-    lineHeight: 1
-  },
-  subtitle: {
-    margin: 0,
-    color: "#475569",
-    lineHeight: 1.6
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: "18px"
-  },
-  panel: {
-    border: "1px solid rgba(15, 23, 42, 0.08)",
-    borderRadius: "26px",
-    background: "rgba(255, 255, 255, 0.82)",
-    padding: "22px",
-    boxShadow: "0 24px 60px rgba(15, 23, 42, 0.10)"
-  },
-  panelHeader: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: "12px"
-  },
-  panelTitle: {
-    margin: "8px 0 16px",
-    fontSize: "1.45rem"
-  },
-  smallButton: {
-    border: "1px solid #0f766e",
-    borderRadius: "999px",
-    background: "#ecfeff",
-    color: "#0f766e",
-    cursor: "pointer",
-    fontWeight: 700,
-    padding: "10px 14px"
-  },
-  primaryButton: {
-    border: 0,
-    borderRadius: "14px",
-    background: "#0f766e",
-    color: "white",
-    cursor: "pointer",
-    fontWeight: 700,
-    padding: "12px 16px"
-  },
-  formCard: {
-    display: "grid",
-    gap: "10px",
-    marginBottom: "16px"
-  },
-  stack: {
-    display: "grid",
-    gap: "10px"
-  },
-  label: {
-    color: "#0f172a",
-    fontWeight: 700
-  },
-  input: {
-    border: "1px solid #cbd5e1",
-    borderRadius: "14px",
-    color: "#0f172a",
-    font: "inherit",
-    padding: "12px 14px"
-  },
-  textarea: {
-    minHeight: "96px",
-    border: "1px solid #cbd5e1",
-    borderRadius: "14px",
-    color: "#0f172a",
-    font: "inherit",
-    padding: "12px 14px",
-    resize: "vertical" as const
-  },
-  list: {
-    display: "grid",
-    gap: "10px",
-    listStyle: "none",
-    margin: 0,
-    padding: 0
-  },
-  listItem: {
-    borderRadius: "16px",
-    background: "#f8fafc",
-    padding: "12px 14px"
-  },
-  successCard: {
-    display: "grid",
-    gap: "6px",
-    marginTop: "16px",
-    borderRadius: "18px",
-    background: "#ecfdf5",
-    color: "#065f46",
-    padding: "14px"
-  },
-  reward: {
-    borderRadius: "18px",
-    background: "#fff7ed",
-    color: "#9a3412",
-    fontWeight: 700,
-    padding: "16px"
-  }
-};

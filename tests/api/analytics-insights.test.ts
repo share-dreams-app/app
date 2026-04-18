@@ -193,6 +193,33 @@ describe("trackEvent and tracked events storage", () => {
       }
     ]);
   });
+
+  it("fails fast when event persistence hangs", async () => {
+    vi.spyOn(db.user, "createMany").mockImplementation(
+      () => new Promise(() => {}) as never
+    );
+    const usageCreateSpy = vi.spyOn(db.usageEvent, "create");
+
+    await expect(
+      analyticsServiceDeps.persistEvent({
+        userId: "owner_db",
+        type: "dream_created",
+        payload: {}
+      })
+    ).rejects.toThrow("ANALYTICS_DB_TIMEOUT");
+
+    expect(usageCreateSpy).not.toHaveBeenCalled();
+  });
+
+  it("fails fast when reading events hangs", async () => {
+    vi.spyOn(db.usageEvent, "findMany").mockImplementation(
+      () => new Promise(() => {}) as never
+    );
+
+    await expect(analyticsServiceDeps.readRecentEvents(10)).rejects.toThrow(
+      "ANALYTICS_DB_TIMEOUT"
+    );
+  });
 });
 
 describe("insights summary", () => {

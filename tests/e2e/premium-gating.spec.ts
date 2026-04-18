@@ -5,8 +5,8 @@ test("free user sees upgrade prompt at the active dream limit", async ({ request
   expect(dashboard.status()).toBe(200);
   const html = await dashboard.text();
 
-  expect(html).toContain("Você atingiu o limite do plano Free");
-  expect(html).toContain("Fazer upgrade para Premium");
+  expect(html).toContain("You have reached the Free plan limit");
+  expect(html).toContain("Upgrade to Premium");
 });
 
 test("free user below the limit does not see the upgrade prompt", async ({ request }) => {
@@ -14,7 +14,7 @@ test("free user below the limit does not see the upgrade prompt", async ({ reque
   expect(dashboard.status()).toBe(200);
   const html = await dashboard.text();
 
-  expect(html).not.toContain("Você atingiu o limite do plano Free");
+  expect(html).not.toContain("You have reached the Free plan limit");
 });
 
 test("premium user sees unlocked insights without the free plan prompt", async ({ request }) => {
@@ -22,7 +22,7 @@ test("premium user sees unlocked insights without the free plan prompt", async (
   expect(insights.status()).toBe(200);
   const html = await insights.text();
 
-  expect(html).toContain("Resumo de engajamento");
-  expect(html).toContain("Premium ativo");
-  expect(html).not.toContain("Você atingiu o limite do plano Free");
+  expect(html).toContain("Engagement Overview");
+  expect(html).toContain("Premium active");
+  expect(html).not.toContain("You have reached the Free plan limit");
 });
